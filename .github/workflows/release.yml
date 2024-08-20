@@ -26,6 +26,7 @@ jobs:
         run: echo ${{ secrets.android_keystore_base64 }} | base64 -d >$GITHUB_WORKSPACE/keystore.jks
 
       - name: Build signed package
+        # this actually is not signed
         # Make sure that caches are disabled to generate reproducible release builds
         # run: ./gradlew assembleWebRelease
         run: ./gradlew --no-build-cache --no-configuration-cache --no-daemon app:assembleRelease
@@ -34,14 +35,16 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.android_keystore_password }}
           ANDROID_KEY_ALIAS: ${{ secrets.android_key_alias }}
           ANDROID_KEY_PASSWORD: ${{ secrets.android_key_password }}
-      - name: list paths
-        run: find app/build/outputs/apk/
+      - name: Sign APK
+        run: |
+          zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-unsigned-aligned.apk
+          # apksigner sign --ks my-release-key.jks --out signed-app-release.apk app/build/outputs/apk/release/app-release-unsigned-aligned.apk
       - name: Create Github release
         uses: softprops/action-gh-release@v2
         with:
           prerelease: ${{ env.prerelease }}
-          files: app/build/outputs/apk/ose/release/*.apk
-          # path: app/build/outputs/apk/debug/app-debug.apk
+          files: app/build/outputs/apk/release/*.apk
+          # app/build/outputs/apk/release/app-release-unsigned.apk
           fail_on_unmatched_files: true
           generate_release_notes: true
           discussion_category_name: Announcements
