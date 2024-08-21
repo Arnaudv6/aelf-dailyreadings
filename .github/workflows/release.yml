@@ -39,6 +39,7 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.android_key_password }}
       - name: Sign APK
         run: |
+          apt-get install zipalign
           zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-unsigned-aligned.apk
           # apksigner sign --ks my-release-key.jks --out signed-app-release.apk app/build/outputs/apk/release/app-release-unsigned-aligned.apk
       - name: Create Github release
