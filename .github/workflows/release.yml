@@ -42,12 +42,12 @@ jobs:
         run: |
           sudo apt-get install zipalign
           zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk app/build/outputs/apk/release/app-release-unsigned-aligned.apk
-          # apksigner sign --ks my-release-key.jks --out signed-app-release.apk app/build/outputs/apk/release/app-release-unsigned-aligned.apk
+          apksigner sign --ks my-release-key.jks --out app/build/outputs/apk/release/signed-app-release.apk app/build/outputs/apk/release/app-release-unsigned-aligned.apk
       - name: Create Github release
         uses: softprops/action-gh-release@v2
         with:
           prerelease: ${{ env.prerelease }}
-          files: app/build/outputs/apk/release/*.apk
+          files: app/build/outputs/apk/release/signed-app-release.apk
           # app/build/outputs/apk/release/app-release-unsigned.apk
           fail_on_unmatched_files: true
           generate_release_notes: true
